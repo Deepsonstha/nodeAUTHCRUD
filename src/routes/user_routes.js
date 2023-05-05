@@ -7,6 +7,7 @@ const router = express.Router();
 // Route middleware
 
 router.use("/changePassword", chekUserAuth);
+router.use("/userDetail", chekUserAuth);
 
 // public Route
 
@@ -15,5 +16,6 @@ router.post("/register", UserController.userRegistration);
 
 // private Route
 router.post("/changePassword", UserController.changePassword);
+router.get("/userDetail", UserController.userDetail);
 
 export default router;

@@ -13,7 +13,7 @@ class UserController {
         message: "Email already exists",
       });
     } else {
-      if (name && email && password && password_confirmation) {
+      if (email && password) {
         if (password === password_confirmation) {
           try {
             const salt = bcrypt.genSaltSync(10);
@@ -31,7 +31,7 @@ class UserController {
                 userId: user._id,
               },
               process.env.JWT_SECRET_KEY,
-              { expiresIn: "2m" }
+              { expiresIn: "2d" }
             );
             res.status(200).send({
               status: "success",
@@ -80,7 +80,10 @@ class UserController {
             res.status(200).json({
               status: "success",
               message: "Successfully login",
-              data: user,
+              data: {
+                name: user.name ?? "",
+                email: user.email,
+              },
               token: token,
             });
           } else {
@@ -109,7 +112,7 @@ class UserController {
     }
   };
 
-  static changePassword = (req, res) => {
+  static changePassword = async (req, res) => {
     const { password, password_confirmation } = req.body;
     if (password && password_confirmation) {
       if (password !== password_confirmation) {
@@ -120,16 +123,15 @@ class UserController {
       } else {
         const salt = bcrypt.genSaltSync(10);
         const hashPassword = bcrypt.hashSync(password, salt);
-        console.log(`myhash : ${hashPassword}`);
-        console.log(req.user._id);
-        UserModel.findByIdAndUpdate(req.user._id, {
+        await UserModel.findByIdAndUpdate(req.user._id, {
           $set: {
             password: hashPassword,
           },
-        });
-        res.status(200).json({
-          status: "success",
-          message: "password change successfully",
+        }).then(() => {
+          res.status(200).json({
+            status: "success",
+            message: "password change successfully",
+          });
         });
       }
     } else {
@@ -138,6 +140,13 @@ class UserController {
         message: "All field are required",
       });
     }
+  };
+
+  static userDetail = async (req, res) => {
+    res.status(200).json({
+      status: "Success",
+      data: req.user,
+    });
   };
 }
 

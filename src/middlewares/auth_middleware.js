@@ -14,7 +14,6 @@ var chekUserAuth = async (req, res, next) => {
 
       req.user = await UserModel.findById(userId).select("-password");
 
-     
       next();
     } catch (error) {
       res.status(401).json({
